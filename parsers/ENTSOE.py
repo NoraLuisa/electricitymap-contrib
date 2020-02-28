@@ -270,7 +270,7 @@ ENTSOE_UNITS_TO_ZONE = {
     'Uppsala KVV': 'SE',
     'Vietas G1': 'SE',
     'Vietas G2': 'SE',
-    'Ãbyverket Ãrebro': 'SE',
+    'Ãbyverket Ãrebro': 'SE',
 }
 
 VALIDATIONS = {

@@ -98,12 +98,7 @@ def parse_from_csv(filepath):
     return {inverse_mapping[k]: v for k, v in data.items() if k in inverse_mapping}
 
 
-def main():
-    args = parse_args()
-    
-    zone = args.zone
-    zonesfile = args.zonesfile
-    data_file = args.data_file
+def main(zone,zonesfile,data_file,token):
 
     if not os.path.exists(zonesfile):
         print("ERROR: Zonesfile {} does not exist.".format(zonesfile),
@@ -117,7 +112,6 @@ def main():
             sys.exit(1)
         data = parse_from_csv(data_file)
     else:
-        token = args.api_token
         if token is None:
             print("ERROR: If no CSV file is given, the option --api-token must be provided", file=sys.stderr)
             exit(1)
@@ -133,4 +127,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(zone = 'DE', zonesfile = ZONESFILE, data_file = None, token = ...)
