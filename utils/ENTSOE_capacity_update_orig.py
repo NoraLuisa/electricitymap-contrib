@@ -55,7 +55,7 @@ def parse_from_entsoe_api(zone, token):
     """Parses installed generation capacities from the ENTSOE API,
        see https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html#_reference_documentation"""
     if zone not in ENTSOE_DOMAIN_MAPPINGS:
-        print("Zone {} does not exist in the ENTSOE domain mapping".format(zone), file=sys.stderr)
+        #print("Zone {} does not exist in the ENTSOE domain mapping".format(zone), file=sys.stderr)
         exit(1)
 
     domain = ENTSOE_DOMAIN_MAPPINGS[zone]
@@ -68,7 +68,7 @@ def parse_from_entsoe_api(zone, token):
          token=token, domain=domain, date=date))
     response = requests.get(url)
     if response.status_code != 200:
-      print("ERROR: Request to ENTSOE API failed with status {}".format(response.status_code), file=sys.stderr)
+      #print("ERROR: Request to ENTSOE API failed with status {}".format(response.status_code), file=sys.stderr)
       exit(1)
 
     data = xmltodict.parse(response.text)
@@ -101,19 +101,19 @@ def parse_from_csv(filepath):
 def main(zonesfile, token, zone, data_file):
 
     if not os.path.exists(zonesfile):
-        print("ERROR: Zonesfile {} does not exist.".format(zonesfile),
-              file=sys.stderr)
+        #print("ERROR: Zonesfile {} does not exist.".format(zonesfile),
+        #      file=sys.stderr)
         sys.exit(1)
 
     if data_file is not None:
         if not os.path.exists(data_file):
-            print("ERROR: Data file {} does not exist.".format(data_file),
-                  file=sys.stderr)
+            #print("ERROR: Data file {} does not exist.".format(data_file),
+            #      file=sys.stderr)
             sys.exit(1)
         data = parse_from_csv(data_file)
     else:
         if token is None:
-            print("ERROR: If no CSV file is given, the option --api-token must be provided", file=sys.stderr)
+            #print("ERROR: If no CSV file is given, the option --api-token must be provided", file=sys.stderr)
             exit(1)
 
         data = parse_from_entsoe_api(zone, token)

@@ -1,6 +1,7 @@
 import importlib
 
-from utils.config import ZONES_CONFIG, EXCHANGES_CONFIG
+#from utils.config import ZONES_CONFIG, EXCHANGES_CONFIG
+from config import ZONES_CONFIG, EXCHANGES_CONFIG
 
 # Prepare all parsers
 CONSUMPTION_PARSERS = {}
