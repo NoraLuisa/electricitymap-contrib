@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Mar  3 10:51:28 2020
+
+@author: nemmermann
+"""
 
 import os
 import sys
@@ -12,7 +18,7 @@ import datetime
 
 from parsers.ENTSOE import ENTSOE_PARAMETER_DESC, ENTSOE_PARAMETER_GROUPS, ENTSOE_DOMAIN_MAPPINGS
 
-ZONESFILE = pathlib.Path(__file__).parent.parent / "config" / "zones.json"
+ZONESFILE = pathlib.Path(__file__).parent / "config" / "zones.json"
 
 
 def update_zone(zone, data, zonesfile):
@@ -22,10 +28,7 @@ def update_zone(zone, data, zonesfile):
     if zone not in zones:
         raise ValueError("Zone {} does not exist in the zonesfile".format(zone))
 
-    try:
-        zones[zone]["capacity"].update(data)
-    except:
-        zones[zone]["capacity"] = data
+    zones[zone]["capacity"].update(data)
 
     with open(zonesfile, "w") as zf:
         json.dump(zones, zf, indent=2)
@@ -59,7 +62,7 @@ def parse_from_entsoe_api(zone, token):
        see https://transparency.entsoe.eu/content/static_content/Static%20content/web%20api/Guide.html#_reference_documentation"""
     if zone not in ENTSOE_DOMAIN_MAPPINGS:
         print("Zone {} does not exist in the ENTSOE domain mapping".format(zone), file=sys.stderr)
-        sys.exit(1)
+        exit(1)
 
     domain = ENTSOE_DOMAIN_MAPPINGS[zone]
 
@@ -72,7 +75,7 @@ def parse_from_entsoe_api(zone, token):
     response = requests.get(url)
     if response.status_code != 200:
       print("ERROR: Request to ENTSOE API failed with status {}".format(response.status_code), file=sys.stderr)
-      sys.exit(1)
+      exit(1)
 
     data = xmltodict.parse(response.text)
 
@@ -101,12 +104,7 @@ def parse_from_csv(filepath):
     return {inverse_mapping[k]: v for k, v in data.items() if k in inverse_mapping}
 
 
-def main():
-    args = parse_args()
-    
-    zone = args.zone
-    zonesfile = args.zonesfile
-    data_file = args.data_file
+def update(zone,zonesfile,data_file,api_token):
 
     if not os.path.exists(zonesfile):
         print("ERROR: Zonesfile {} does not exist.".format(zonesfile),
@@ -120,12 +118,11 @@ def main():
             sys.exit(1)
         data = parse_from_csv(data_file)
     else:
-        token = args.api_token
-        if token is None:
+        if api_token is None:
             print("ERROR: If no CSV file is given, the option --api-token must be provided", file=sys.stderr)
-            sys.exit(1)
+            exit(1)
 
-        data = parse_from_entsoe_api(zone, token)
+        data = parse_from_entsoe_api(zone, api_token)
     
     aggregated_data = aggregate_data(data)
 
@@ -133,7 +130,12 @@ def main():
     print("Updating zone {}".format(zone))
 
     update_zone(zone, aggregated_data, zonesfile)
+    
+    return data, aggregated_data
 
-
-if __name__ == "__main__":
-    main()
+#try updating
+country = 'AX'
+zonesfile = ZONESFILE
+data_file = None
+api_token = '3ba5596a-5e43-4937-8f69-33d18235d233'
+country_data, country_aggregated_data = update(country,zonesfile, data_file, api_token)

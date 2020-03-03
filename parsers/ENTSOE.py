@@ -568,7 +568,19 @@ def datetime_from_position(start, position, resolution):
         digits = int(m.group(1))
         scale = m.group(2)
         if scale == 'M':
-            return start.replace(minutes=(position - 1) * digits)
+            #return start.replace(minute=(position-1) * digits)
+            try:
+                return start.replace(minute=(position - 1) * digits)
+            except ValueError:
+                h = int(((position - 1) * digits)/60)
+                m = ((position - 1) * digits) - (h * 60)
+                try:
+                    return start.replace(hour=h, minute=m)
+                except ValueError:
+                    d = int(h/24)
+                    h = h - (d * 24)
+                    return start.replace(day=d, hour=h, minute=m)
+                    
     raise NotImplementedError('Could not recognise resolution %s' % resolution)
 
 
@@ -770,7 +782,6 @@ def fetch_consumption(zone_key, session=None, target_datetime=None,
         only_outBiddingZone_Domain=True)
     if parsed:
         quantities, datetimes = parsed
-
         # if a target_datetime was requested, we return everything
         if target_datetime:
             return [{
