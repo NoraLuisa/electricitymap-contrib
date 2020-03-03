@@ -28,7 +28,6 @@ from parsers.lib.utils import sum_production_dicts
 
 #setting security token
 os.environ['ENTSOE_TOKEN'] = '3ba5596a-5e43-4937-8f69-33d18235d233'
-#os.putenv('ENTSOE_TOKEN', '3ba5596a-5e43-4937-8f69-33d18235d233')
 
 #importing vie parsers.ENTSOE.py
 from parsers.ENTSOE import *
@@ -73,7 +72,8 @@ for country in ENTSOE_DOMAIN_MAPPINGS:
         countrywise_data[country]['wind_solar_forecast'] = None
     
     #for exchange_country in ENTSOE_DOMAIN_MAPPINGS,3:
-    for exchange_country in ['AL']:
+    #this is not symmetric!
+    for exchange_country in ENTSOE_DOMAIN_MAPPINGS:
         print(exchange_country)
         exchange_data[country] = {}
         exchange_data[country][exchange_country] = {}
@@ -94,39 +94,35 @@ for zone in ZONE_KEY_AGGREGATES:
     aggregated_production[zone] = fetch_production_aggregate(zone, session=None,
                          target_datetime=None, logger=logging.getLogger(__name__))
 
-#production_per_units = {}
-#for zone in ENTSOE_EIC_MAPPING:
-#    print(zone)
-#    production_per_units[zone] = fetch_production_per_units(zone, session=None,
-#                        target_datetime=None, logger=logging.getLogger(__name__))
-#
-#production_per_units['PL'] = fetch_production_per_units('PL', session=None,
-#                        target_datetime=None, logger=logging.getLogger(__name__))
-#production_per_units['SE'] = fetch_production_per_units('SE', session=None,
-#                        target_datetime=None, logger=logging.getLogger(__name__))
+#Fehler im Code von electricitymap?
+production_per_units = {}
+for zone in ENTSOE_EIC_MAPPING:
+    print(zone)
+    production_per_units[zone] = fetch_production_per_units(zone, session=None,
+                        target_datetime=None, logger=logging.getLogger(__name__))
 
 
 #importing via utils.ENTSOE_capacity_update.py
 print('starting capacity update...')
-api_token = '3ba5596a-5e43-4937-8f69-33d18235d233'
+api_token = os.environ['ENTSOE_TOKEN']
 zonesfile = pathlib.Path(__file__).parent / "config" / "zones.json"
 if not os.path.exists(zonesfile):
     print("ERROR: Zonesfile {} does not exist.".format(zonesfile),
           file=sys.stderr)
     sys.exit(1)
 
-data = {}
-aggregated_data = {}
+u_data = {}
+u_aggregated_data = {}
 
 for country in ENTSOE_DOMAIN_MAPPINGS:
     print(country)
     try:
-        data[country] = parse_from_entsoe_api(country, api_token)
+        u_data[country] = parse_from_entsoe_api(country, api_token)
     except:
         continue
-    aggregated_data[country] = aggregate_data(data[country])
+    u_aggregated_data[country] = aggregate_data(u_data[country])
 
-    print("Aggregated capacities: {}".format(json.dumps(aggregated_data[country])))
+    print("Aggregated capacities: {}".format(json.dumps(u_aggregated_data[country])))
     print("Updating zone {}".format(country))
 
-    update_zone(country, aggregated_data[country], zonesfile)
+    update_zone(country, u_aggregated_data[country], zonesfile)

@@ -674,7 +674,7 @@ def parse_production_per_units(xml_text):
                 values[key] = {
                     'datetime': datetime,
                     'production': quantity,
-                    'productionType': ENTSOE_PARAMETER_BY_GROUP[psr_type],
+                    'productionType': ENTSOE_PARAMETER_DESC[psr_type],
                     'unitKey': unit_key,
                     'unitName': unit_name
                 }
